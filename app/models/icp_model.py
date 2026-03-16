@@ -6,12 +6,12 @@ class ICPRequest(BaseModel):
 
 
 class ICPResponse(BaseModel):
-    ICPIndustry: str
-    ICPEmployeesRange: str
-    ICPRevenueUSD: str
-    ICPFundingType: str
-    ICPFundingStage: str
-    ICPParentCompany: str
-    ICPLinkedInURL: str
-    ICPMarketingSignal: str
-    ICPFitStatus: str
+    ICPIndustry: str = ""
+    ICPEmployeesRange: str = ""
+    ICPRevenueUSD: str = ""
+    ICPFundingType: str = ""
+    ICPFundingStage: str = ""
+    ICPParentCompany: str = ""  # Default to an empty string
+    ICPLinkedInURL: str = ""
+    ICPMarketingSignal: str = ""
+    ICPFitStatus: str = ""

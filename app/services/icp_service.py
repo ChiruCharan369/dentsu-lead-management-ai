@@ -33,4 +33,7 @@ def get_icp_data(company: str) -> ICPResponse:
     except Exception:
         raise Exception(f"Invalid JSON from LLM: {text}")
 
+    # Replace None values with empty strings
+    data = {key: (value if value is not None else "") for key, value in data.items()}
+
     return ICPResponse(**data)
