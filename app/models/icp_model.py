@@ -15,3 +15,4 @@ class ICPResponse(BaseModel):
     ICPLinkedInURL: str = ""
     ICPMarketingSignal: str = ""
     ICPFitStatus: str = ""
+    ICPFitmentTest: str = "" 
