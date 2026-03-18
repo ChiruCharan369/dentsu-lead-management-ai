@@ -36,6 +36,7 @@ def clean_json(text: str):
     return text.strip()
 
 
+<<<<<<< HEAD
 def safe_load_json(text: str):
 
     try:
@@ -44,6 +45,27 @@ def safe_load_json(text: str):
         print("JSON ERROR:", e)
         print("RAW:", text)
         return {}
+=======
+def calculate_fitment(data: dict) -> str:
+    weights = {
+        "ICPIndustry": 20,
+        "ICPEmployeesRange": 15,
+        "ICPRevenueUSD": 20,
+        "ICPFundingType": 5,
+        "ICPFundingStage": 5,
+        "ICPParentCompany": 5,
+        "ICPLinkedInURL": 5,
+        "ICPMarketingSignal": 15,
+        "ICPFitStatus": 10,
+    }
+
+    total_score = 0
+    for key, weight in weights.items():
+        if data.get(key):
+            total_score += weight
+
+    return "ICP Fitment" if total_score >= 70 else "ICP Non Fitment"
+>>>>>>> b8874193d003bbf6ed15c49ad356c3a07c44ed94
 
 
 def get_icp_data(company: str) -> ICPResponse:
@@ -61,4 +83,11 @@ def get_icp_data(company: str) -> ICPResponse:
     # replace None
     data = {k: (v if v is not None else "") for k, v in data.items()}
 
+<<<<<<< HEAD
     return ICPResponse(**data)
+=======
+    # Calculate fitment
+    data["ICPFitmentTest"] = calculate_fitment(data)
+
+    return ICPResponse(**data)
+>>>>>>> b8874193d003bbf6ed15c49ad356c3a07c44ed94
