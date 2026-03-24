@@ -11,6 +11,7 @@ class ICPResponse(BaseModel):
     ICPRevenueUSD: str = ""
     ICPFundingType: str = ""
     ICPFundingStage: str = ""
+    ICPFUndingAmount: str = "" 
     ICPParentCompany: str = ""  # Default to an empty string
     ICPLinkedInURL: str = ""
     ICPMarketingSignal: str = ""
