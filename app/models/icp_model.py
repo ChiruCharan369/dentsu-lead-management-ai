@@ -2,7 +2,8 @@ from pydantic import BaseModel
 
 
 class ICPRequest(BaseModel):
-    company: str
+    company: str = ""
+    email: str = ""
 
 
 class ICPResponse(BaseModel):
@@ -11,9 +12,9 @@ class ICPResponse(BaseModel):
     ICPRevenueUSD: str = ""
     ICPFundingType: str = ""
     ICPFundingStage: str = ""
-    ICPFUndingAmount: str = "" 
-    ICPParentCompany: str = ""  # Default to an empty string
+    ICPFUndingAmount: str = ""
+    ICPParentCompany: str = ""
     ICPLinkedInURL: str = ""
     ICPMarketingSignal: str = ""
     ICPFitStatus: str = ""
-    ICPFitmentTest: str = "" 
+    ICPFitmentTest: str = ""
