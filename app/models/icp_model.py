@@ -2,17 +2,22 @@ from pydantic import BaseModel
 
 
 class ICPRequest(BaseModel):
-    company: str
+    company: str = ""
+    email: str = ""
 
 
 class ICPResponse(BaseModel):
+    company: str = ""
+    email: str = ""
+    
     ICPIndustry: str = ""
     ICPEmployeesRange: str = ""
     ICPRevenueUSD: str = ""
     ICPFundingType: str = ""
     ICPFundingStage: str = ""
-    ICPParentCompany: str = ""  # Default to an empty string
+    ICPFUndingAmount: str = ""
+    ICPParentCompany: str = ""
     ICPLinkedInURL: str = ""
     ICPMarketingSignal: str = ""
     ICPFitStatus: str = ""
-    ICPFitmentTest: str = "" 
+    ICPFitmentTest: str = ""
