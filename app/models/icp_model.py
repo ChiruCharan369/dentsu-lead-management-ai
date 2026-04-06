@@ -7,6 +7,9 @@ class ICPRequest(BaseModel):
 
 
 class ICPResponse(BaseModel):
+    company: str = ""
+    email: str = ""
+    
     ICPIndustry: str = ""
     ICPEmployeesRange: str = ""
     ICPRevenueUSD: str = ""
