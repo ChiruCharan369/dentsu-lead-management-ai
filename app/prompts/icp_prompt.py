@@ -8,19 +8,20 @@ STRICT OUTPUT RULES:
 - No explanation
 - JSON must work with Python json.loads()
 
+CRITICAL:
+- ICPRevenueUSD and ICPEmployeesRange MUST NEVER be empty
+- If unknown → estimate using best real-world reasoning
+- Returning empty values is INVALID
+
 IMPORTANT:
 Use real-world knowledge about the company.
-Use best estimate if exact data not known.
-Avoid "Unknown" unless impossible.
 Values must be realistic for year 2026.
 
 ========================
 DATA SOURCE PRIORITY (VERY STRICT)
 ========================
 
-Use data consistent with these sources in order:
-
-1. ZoomInfo (HIGHEST PRIORITY)
+1. ZoomInfo
 2. Clearbit
 3. Apollo.io
 4. LinkedIn
@@ -28,30 +29,18 @@ Use data consistent with these sources in order:
 6. People Data Labs
 
 Rules:
-
-- If ZoomInfo data exists → use it
-- If not → use Clearbit / Apollo / LinkedIn
+- Use highest priority available
 - If conflict → choose most realistic value
 - Never invent unrealistic numbers
-- Never give startup revenue as billions
-- Never give enterprise revenue as thousands
-
-All values must reflect realistic company size in year 2026.
 
 ========================
 YEAR 2026 ESTIMATION RULE
 ========================
 
-If data looks old:
-
-- Increase revenue slightly
-- Increase employees slightly
-- Keep realistic range
-- Do NOT overestimate
-
-Example:
-2019 revenue 5M → 2026 = 5M–7M
-2020 employees 40 → 2026 = 51-100
+If data is old:
+- Increase slightly (10–30%)
+- Stay realistic
+- Do NOT jump categories
 
 ========================
 FIELDS TO RETURN
@@ -73,25 +62,22 @@ ICPFitmentTest
 INDUSTRY RULE
 ========================
 
-Detect real industry from company name.
+Classify correctly:
 
-News / Media / TV → Media
-Ads / Advertising / Marketing → Advertising
-Insurance → Insurance
+Media / News / TV → Media
+Ads / Marketing → Advertising
 Bank / Finance → Banking
-Software / AI / SaaS / IT → Technology
-Retail / Ecommerce → Retail
+Software / SaaS / AI → Technology
+Retail / Ecommerce / Luxury goods → Retail
 Manufacturing / Industrial → Manufacturing
-Hospital / Pharma → Healthcare
-Education / University → Education
-
-Do NOT classify everything as Technology.
+Healthcare / Pharma → Healthcare
+Education → Education
 
 ========================
-EMPLOYEE RANGE RULE
+EMPLOYEE RANGE RULE (STRICT)
 ========================
 
-Allowed values:
+Allowed values ONLY:
 
 1-10
 11-50
@@ -99,55 +85,129 @@ Allowed values:
 201-500
 500+
 
-Use realistic estimate based on real company size.
+Rules:
+- MUST NOT be empty
+- MUST reflect real company scale
+- Large/global brands → ALWAYS "500+"
 
 ========================
-REVENUE RULE (USD) — VERY STRICT
+REVENUE RULE (USD) — EXACT VALUE MODE
 ========================
 
-Revenue must be estimated using real company data signals.
+Revenue MUST always be returned.
+It MUST NOT be empty.
 
-Priority:
+"Unknown" is NOT allowed unless absolutely no signals exist.
 
-1. ZoomInfo revenue
-2. Clearbit revenue
-3. Apollo revenue
-4. Crunchbase financials
-5. LinkedIn + real-world knowledge
-6. People Data Labs
+========================
+DATA PRIORITY
+========================
+
+Use sources in order:
+
+1. ZoomInfo
+2. Clearbit
+3. Apollo.io
+4. Crunchbase
+5. LinkedIn
+6. Real-world knowledge
+
+========================
+ESTIMATION RULE
+========================
+
+If exact revenue is not available:
+
+- Estimate using:
+  - Brand strength
+  - Product pricing
+  - Market presence
+  - Geography
+  - Customer scale
+
+STRICT:
+- DO NOT calculate from employee count
+- DO NOT guess randomly
+- DO NOT default to common values
+
+========================
+OUTPUT FORMAT (STRICT)
+========================
+
+Return revenue as a SINGLE value in USD using:
+
+K = thousand  
+M = million  
+B = billion  
+
+Examples of VALID outputs:
+
+750K
+2M
+7.5M
+18M
+75M
+120M
+320M
+850M
+1.2B
+1.8B
+3.5B
+7B
 
 Rules:
 
-- DO NOT calculate revenue from employees
-- DO NOT use fixed mapping
-- DO NOT guess randomly
-- Revenue must match real company scale
-- Use realistic value for year 2026
-- If old data → adjust slightly
-- Never overestimate
-- Never underestimate big companies
+- No commas (e.g., 1,000,000 ❌)
+- No currency symbols (e.g., $ ❌)
+- No text (e.g., "approx" ❌)
+- No ranges (e.g., 1M-5M ❌)
+- MUST be a realistic number (not rounded unnecessarily)
 
-Allowed format:
+========================
+SCALE VALIDATION
+========================
 
-500K
-1M
-5M
-10M
-25M
-50M
-100M
-250M
-500M
-1B
-5B
-10B
+- Global / luxury / enterprise companies → typically in billions (B)
+- Mid-size companies → millions (10M–500M)
+- Small companies → thousands to low millions (500K–10M)
+
+STRICT:
+- Do NOT underestimate large companies
+- Do NOT overestimate small companies
+
+========================
+YEAR 2026 ADJUSTMENT
+========================
+
+If data is old:
+- Increase slightly (10–30%)
+- Keep realistic growth
+
+========================
+FINAL VALIDATION
+========================
+
+Before returning:
+
+- Value MUST be non-empty
+- Value MUST match company scale
+- Value MUST be properly formatted (K/M/B)
+- Value MUST be realistic for 2026
+
+If invalid → RE-CALCULATE
+
+========================
+FAILSAFE
+========================
+
+If ICPRevenueUSD is empty or unrealistic:
+→ Entire response is INVALID
 
 ========================
 FUNDING RULE
 ========================
 
 FundingType:
-
 Bootstrapped
 Private
 Public
@@ -155,7 +215,6 @@ Venture Capital
 Subsidiary
 
 FundingStage:
-
 Seed
 Series A
 Series B
@@ -171,45 +230,36 @@ High Engagement
 Medium Engagement
 Low Engagement
 
-Use realistic guess based on company size and presence.
-
 ========================
-ICP FITMENT CONDITIONS (ONLY THESE 3)
+ICP FITMENT CONDITIONS
 ========================
 
-Condition A:
-Industry must NOT be Media
-Industry must NOT be Advertising
-
-Condition B:
-Employees must be > 10
-
-Allowed:
-11-50
-51-200
-201-500
-500+
-
-Condition C:
-Revenue must be >= 1M
+A: Industry NOT Media AND NOT Advertising
+B: Employees > 10
+C: Revenue >= 1M
 
 ========================
-FINAL DECISION (VERY STRICT)
+FINAL DECISION
 ========================
-
-A = Industry NOT Media AND NOT Advertising
-B = EmployeesRange in (11-50, 51-200, 201-500, 500+)
-C = Revenue >= 1M
 
 If A AND B AND C TRUE:
-
 ICPFitmentTest = "ICP Fitment"
 ICPFitStatus = "Good Fit"
 
 Else:
-
 ICPFitmentTest = "ICP non Fitment"
 ICPFitStatus = "Not Fit"
+
+========================
+FAILSAFE (VERY IMPORTANT)
+========================
+
+If ICPRevenueUSD or ICPEmployeesRange is:
+- Empty
+- Unrealistic
+- Not matching company scale
+
+→ Entire response is INVALID
 
 Company: {company}
 
