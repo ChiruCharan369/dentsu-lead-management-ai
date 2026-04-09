@@ -43,6 +43,33 @@ If data is old:
 - Do NOT jump categories
 
 ========================
+COMPANY SIZE CLASSIFICATION (CRITICAL)
+========================
+
+First classify the company into ONE:
+
+SMALL:
+- LLP / local business
+- Low online presence
+- Limited employees
+- No funding signals
+
+MID:
+- Regional company
+- Moderate presence
+- Growing business
+
+LARGE:
+- Global / well-known brand
+- Enterprise scale
+- Strong presence
+
+This classification MUST be used to control:
+- Employees
+- Revenue
+- Funding
+
+========================
 FIELDS TO RETURN
 ========================
 
@@ -87,8 +114,12 @@ Allowed values ONLY:
 
 Rules:
 - MUST NOT be empty
-- MUST reflect real company scale
-- Large/global brands → ALWAYS "500+"
+
+SCALE ENFORCEMENT:
+
+- SMALL → "1-10" or "11-50"
+- MID → "51-200" or "201-500"
+- LARGE → ALWAYS "500+"
 
 ========================
 REVENUE RULE (USD) — EXACT VALUE MODE
@@ -97,13 +128,9 @@ REVENUE RULE (USD) — EXACT VALUE MODE
 Revenue MUST always be returned.
 It MUST NOT be empty.
 
-"Unknown" is NOT allowed unless absolutely no signals exist.
-
 ========================
 DATA PRIORITY
 ========================
-
-Use sources in order:
 
 1. ZoomInfo
 2. Clearbit
@@ -120,13 +147,13 @@ If exact revenue is not available:
 
 - Estimate using:
   - Brand strength
-  - Product pricing
+  - Pricing
   - Market presence
   - Geography
   - Customer scale
 
 STRICT:
-- DO NOT calculate from employee count
+- DO NOT calculate from employees
 - DO NOT guess randomly
 - DO NOT default to common values
 
@@ -134,54 +161,61 @@ STRICT:
 OUTPUT FORMAT (STRICT)
 ========================
 
-Return revenue as a SINGLE value in USD using:
+Return revenue as:
 
-K = thousand  
-M = million  
-B = billion  
-
-Examples of VALID outputs:
-
-750K
-2M
-7.5M
-18M
-75M
-120M
-320M
-850M
-1.2B
-1.8B
-3.5B
-7B
+K / M / B format (single value)
 
 Rules:
-
-- No commas (e.g., 1,000,000 ❌)
-- No currency symbols (e.g., $ ❌)
-- No text (e.g., "approx" ❌)
-- No ranges (e.g., 1M-5M ❌)
-- MUST be a realistic number (not rounded unnecessarily)
+- No ranges
+- No symbols
+- No text
+- Must be realistic
+- Do NOT reuse common or repeated values across companies unless justified
 
 ========================
 SCALE VALIDATION
 ========================
 
-- Global / luxury / enterprise companies → typically in billions (B)
-- Mid-size companies → millions (10M–500M)
-- Small companies → thousands to low millions (500K–10M)
+- LARGE → billions (B)
+- MID → 10M–500M
+- SMALL → 500K–1M
+
+========================
+SMALL COMPANY CORRECTION RULE (CRITICAL)
+========================
+
+If classified as SMALL:
+
+- FundingType = Bootstrapped
+- FundingStage = Mature
+- Revenue MUST be ≤ 1M
+- Employees MUST be ≤ 50
+
+If violated → RE-CALCULATE
+
+========================
+REVENUE NUMERIC INTERPRETATION (STRICT)
+========================
+
+Interpret revenue values internally:
+
+- K = thousand
+- M = million
+- B = billion
+
+Convert generated value into numeric form ONLY for comparison.
 
 STRICT:
-- Do NOT underestimate large companies
-- Do NOT overestimate small companies
+- Do NOT reuse fixed numbers
+- Do NOT repeat common values across different companies
+- Each company MUST have independently estimated revenue
 
 ========================
 YEAR 2026 ADJUSTMENT
 ========================
 
-If data is old:
 - Increase slightly (10–30%)
-- Keep realistic growth
+- Stay realistic
 
 ========================
 FINAL VALIDATION
@@ -189,19 +223,12 @@ FINAL VALIDATION
 
 Before returning:
 
-- Value MUST be non-empty
-- Value MUST match company scale
-- Value MUST be properly formatted (K/M/B)
-- Value MUST be realistic for 2026
+- Revenue NOT empty
+- Employees NOT empty
+- Matches company size classification
+- Revenue + Employees consistent
 
 If invalid → RE-CALCULATE
-
-========================
-FAILSAFE
-========================
-
-If ICPRevenueUSD is empty or unrealistic:
-→ Entire response is INVALID
 
 ========================
 FUNDING RULE
@@ -231,33 +258,40 @@ Medium Engagement
 Low Engagement
 
 ========================
-ICP FITMENT CONDITIONS
+FINAL DECISION (HARD LOGIC)
 ========================
 
-A: Industry NOT Media AND NOT Advertising
-B: Employees > 10
-C: Revenue >= 1M
+Evaluate strictly using numeric revenue:
+
+A = Industry is NOT "Media" AND NOT "Advertising"
+B = ICPEmployeesRange is one of: "11-50", "51-200", "201-500", "500+"
+C = Revenue (numeric) ≥ 1,000,000
+
+If ALL (A AND B AND C) are TRUE:
+- ICPFitmentTest = "ICP Fitment"
+- ICPFitStatus = "Good Fit"
+
+ELSE:
+- ICPFitmentTest = "ICP non Fitment"
+- ICPFitStatus = "Not Fit"
 
 ========================
-FINAL DECISION
+VALIDATION (CRITICAL)
 ========================
 
-If A AND B AND C TRUE:
-ICPFitmentTest = "ICP Fitment"
-ICPFitStatus = "Good Fit"
+Before returning:
 
-Else:
-ICPFitmentTest = "ICP non Fitment"
-ICPFitStatus = "Not Fit"
+- Re-check A, B, C using GENERATED values ONLY
+- If mismatch → FIX output
 
 ========================
-FAILSAFE (VERY IMPORTANT)
+FAILSAFE
 ========================
 
 If ICPRevenueUSD or ICPEmployeesRange is:
 - Empty
 - Unrealistic
-- Not matching company scale
+- Not matching company size
 
 → Entire response is INVALID
 
