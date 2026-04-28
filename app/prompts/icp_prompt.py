@@ -1,299 +1,334 @@
 ICP_PROMPT = """
+ICP PROMPT GUIDELINES
 
-STRICT OUTPUT RULES:
+OUTPUT RULES:
 - Return ONLY valid JSON
-- Use double quotes for ALL keys
-- Use double quotes for ALL values
-- No extra text
-- No explanation
-- JSON must work with Python json.loads()
+- Use double quotes for all keys and values
+- No explanation, notes, markdown, or extra text
+- If uncertain, estimate using realistic business signals
+- Never leave mandatory fields blank except allowed N/A fields
 
-CRITICAL:
-- ICPRevenueUSD and ICPEmployeesRange MUST NEVER be empty
-- If unknown → estimate using best real-world reasoning
-- Returning empty values is INVALID
+==================================================
+FIELD DEFINITIONS
+==================================================
 
-IMPORTANT:
-Use real-world knowledge about the company.
-Values must be realistic for year 2026.
+ICPIndustry:
+Primary business industry.
 
-========================
-DATA SOURCE PRIORITY (VERY STRICT)
-========================
-
-1. ZoomInfo
-2. Clearbit
-3. Apollo.io
-4. LinkedIn
-5. Crunchbase
-6. People Data Labs
+Allowed examples:
+Technology
+Financial Services
+Banking
+Retail
+Manufacturing
+Healthcare
+Education
+Agriculture
+Logistics
+Real Estate
+Hospitality
+Consumer Goods
+Automotive
+Media
+Advertising
+Energy
+Telecommunications
 
 Rules:
-- Use highest priority available
-- If conflict → choose most realistic value
-- Never invent unrealistic numbers
+- Marketing / agency / branding / ad companies = Advertising
+- TV / news / publishing / streaming = Media
+- Fintech / payments / lending / wallets = Financial Services
+- SaaS / AI / IT / software = Technology
 
-========================
-YEAR 2026 ESTIMATION RULE
-========================
+--------------------------------------------------
 
-If data is old:
-- Increase slightly (10–30%)
-- Stay realistic
-- Do NOT jump categories
-
-========================
-COMPANY SIZE CLASSIFICATION (CRITICAL)
-========================
-
-First classify the company into ONE:
-
-SMALL:
-- LLP / local business
-- Low online presence
-- Limited employees
-- No funding signals
-
-MID:
-- Regional company
-- Moderate presence
-- Growing business
-
-LARGE:
-- Global / well-known brand
-- Enterprise scale
-- Strong presence
-
-This classification MUST be used to control:
-- Employees
-- Revenue
-- Funding
-
-========================
-FIELDS TO RETURN
-========================
-
-ICPIndustry
-ICPEmployeesRange
-ICPRevenueUSD
-ICPFundingType
-ICPFundingStage
-ICPFundingAmount
-ICPParentCompany
-ICPLinkedInURL
-ICPMarketingSignal
-ICPFitStatus
-ICPFitmentTest
-
-========================
-INDUSTRY RULE
-========================
-
-Classify correctly:
-
-Media / News / TV → Media
-Ads / Marketing → Advertising
-Bank / Finance → Banking
-Software / SaaS / AI → Technology
-Retail / Ecommerce / Luxury goods → Retail
-Manufacturing / Industrial → Manufacturing
-Healthcare / Pharma → Healthcare
-Education → Education
-
-========================
-EMPLOYEE RANGE RULE (STRICT)
-========================
-
+ICPEmployeesRange:
 Allowed values ONLY:
 
-1-10
-11-50
-51-200
-201-500
-500+
+"1-10"
+"11-50"
+"51-200"
+"201-500"
+"500+"
+
+Must never be empty.
+
+--------------------------------------------------
+
+ICPRevenueUSD:
+Estimated annual revenue in USD.
+
+Allowed format ONLY:
+"K" = Thousand
+"M" = Million
+"B" = Billion
+
+Examples:
+"850K"
+"4.2M"
+"19M"
+"240M"
+"1.4B"
 
 Rules:
-- MUST NOT be empty
-
-SCALE ENFORCEMENT:
-
-- SMALL → "1-10" or "11-50"
-- MID → "51-200" or "201-500"
-- LARGE → ALWAYS "500+"
-
-========================
-REVENUE RULE (USD) — EXACT VALUE MODE
-========================
-
-Revenue MUST always be returned.
-It MUST NOT be empty.
-
-========================
-DATA PRIORITY
-========================
-
-1. ZoomInfo
-2. Clearbit
-3. Apollo.io
-4. Crunchbase
-5. LinkedIn
-6. Real-world knowledge
-
-========================
-ESTIMATION RULE
-========================
-
-If exact revenue is not available:
-
-- Estimate using:
-  - Brand strength
-  - Pricing
-  - Market presence
-  - Geography
-  - Customer scale
-
-STRICT:
-- DO NOT calculate from employees
-- DO NOT guess randomly
-- DO NOT default to common values
-
-========================
-OUTPUT FORMAT (STRICT)
-========================
-
-Return revenue as:
-
-K / M / B format (single value)
-
-Rules:
-- No ranges
-- No symbols
-- No text
+- No raw numbers
+- No currency symbols
 - Must be realistic
-- Do NOT reuse common or repeated values across companies unless justified
+- Must align with employee size + industry
+- Use varied values, not repeated defaults
 
-========================
-SCALE VALIDATION
-========================
+--------------------------------------------------
 
-- LARGE → billions (B)
-- MID → 10M–500M
-- SMALL → 500K–1M
+ICPFundingType:
+Allowed values ONLY:
 
-========================
-SMALL COMPANY CORRECTION RULE (CRITICAL)
-========================
+"Bootstrapped"
+"Private"
+"Public"
+"Venture Capital"
+"Subsidiary"
 
-If classified as SMALL:
+--------------------------------------------------
 
-- FundingType = Bootstrapped
-- FundingStage = Mature
-- Revenue MUST be ≤ 1M
-- Employees MUST be ≤ 50
+ICPFundingStage:
+Allowed values ONLY:
 
-If violated → RE-CALCULATE
+"Seed"
+"Series A"
+"Series B"
+"Series C"
+"IPO"
+"Mature"
 
-========================
-REVENUE NUMERIC INTERPRETATION (STRICT)
-========================
+--------------------------------------------------
 
-Interpret revenue values internally:
+ICPFUndingAmount:
+If known estimated funding amount:
+Examples:
+"5M"
+"22M"
+"300K"
 
-- K = thousand
-- M = million
-- B = billion
+Else return ""
 
-Convert generated value into numeric form ONLY for comparison.
+--------------------------------------------------
 
-STRICT:
-- Do NOT reuse fixed numbers
-- Do NOT repeat common values across different companies
-- Each company MUST have independently estimated revenue
+ICPParentCompany:
+Parent company name if known.
+Else return "N/A"
 
-========================
-YEAR 2026 ADJUSTMENT
-========================
+--------------------------------------------------
 
-- Increase slightly (10–30%)
-- Stay realistic
+ICPLinkedInURL:
+Valid LinkedIn company page if confidently known.
+Else return "N/A"
 
-========================
-FINAL VALIDATION
-========================
+--------------------------------------------------
 
-Before returning:
+ICPMarketingSignal:
+Allowed values ONLY:
 
-- Revenue NOT empty
-- Employees NOT empty
-- Matches company size classification
-- Revenue + Employees consistent
+"High Engagement"
+"Medium Engagement"
+"Low Engagement"
 
-If invalid → RE-CALCULATE
+Use signals like:
+- Ad activity
+- Social presence
+- Hiring growth
+- Brand campaigns
+- Website/product activity
 
-========================
-FUNDING RULE
-========================
+--------------------------------------------------
 
-FundingType:
-Bootstrapped
-Private
-Public
-Venture Capital
-Subsidiary
+ICPFitStatus:
+"Good Fit"
+"Not Fit"
 
-FundingStage:
-Seed
-Series A
-Series B
-Series C
-IPO
-Mature
+ICPFitmentTest:
+"ICP Fitment"
+"ICP non Fitment"
 
-========================
-MARKETING SIGNAL
-========================
+==================================================
+EMPLOYEE ESTIMATION RULES (VERY IMPORTANT)
+==================================================
 
-High Engagement
-Medium Engagement
-Low Engagement
+Estimate using REAL company maturity.
 
-========================
-FINAL DECISION (HARD LOGIC)
-========================
+1) Tiny local company / new unknown business:
+-> "1-10"
 
-Evaluate strictly using numeric revenue:
+2) Small startup / LLP / niche regional company:
+-> "11-50"
 
-A = Industry is NOT "Media" AND NOT "Advertising"
-B = ICPEmployeesRange is one of: "11-50", "51-200", "201-500", "500+"
-C = Revenue (numeric) ≥ 1,000,000
+3) Funded startup / growing company / active SaaS / fintech:
+-> "51-200"
 
-If ALL (A AND B AND C) are TRUE:
-- ICPFitmentTest = "ICP Fitment"
-- ICPFitStatus = "Good Fit"
+4) Established mid-size company / multiple branches:
+-> "201-500"
 
-ELSE:
-- ICPFitmentTest = "ICP non Fitment"
-- ICPFitStatus = "Not Fit"
+5) Public company / national brand / old enterprise /
+large manufacturer / enterprise group:
+-> "500+"
 
-========================
-VALIDATION (CRITICAL)
-========================
+CRITICAL RULES:
 
-Before returning:
+- Never default to "51-200"
+- Famous brands should rarely be below "500+"
+- Listed companies should usually be "500+"
+- Multi-country operations should usually be "201-500" or "500+"
+- Regulated fintech/payment companies should usually be at least "51-200"
 
-- Re-check A, B, C using GENERATED values ONLY
-- If mismatch → FIX output
+==================================================
+REVENUE ESTIMATION RULES (CRITICAL)
+==================================================
 
-========================
-FAILSAFE
-========================
+Revenue must strongly match employee scale.
 
-If ICPRevenueUSD or ICPEmployeesRange is:
-- Empty
-- Unrealistic
-- Not matching company size
+BASELINE GUIDE:
 
-→ Entire response is INVALID
+"1-10"
+100K to 2M
+
+"11-50"
+500K to 8M
+
+"51-200"
+3M to 35M
+
+"201-500"
+15M to 120M
+
+"500+"
+50M to Multi-Billion
+
+INDUSTRY MULTIPLIERS:
+
+- Manufacturing / Banking / Consumer Goods / Payments:
+Usually higher revenue
+
+- SaaS / AI startup:
+Medium to high depending scale
+
+- Agriculture / services / boutique firms:
+Lower to medium
+
+- Public brands:
+Can exceed baseline significantly
+
+CRITICAL RULES:
+
+- Do NOT reuse values like 2.5M / 3.2M / 5M repeatedly
+- Use realistic variation:
+6.8M
+11M
+27M
+73M
+410M
+1.2B
+
+- If Employees = "500+" rarely below 50M
+- If Employees = "1-10" rarely above 5M
+
+==================================================
+FUNDING RULES
+==================================================
+
+If listed/public company:
+FundingType = "Public"
+FundingStage = "IPO"
+
+If startup with investors:
+FundingType = "Venture Capital"
+
+If owned by parent group:
+FundingType = "Subsidiary"
+
+If old private company:
+FundingType = "Private"
+FundingStage = "Mature"
+
+If small self-owned:
+FundingType = "Bootstrapped"
+
+==================================================
+MARKETING SIGNAL RULES
+==================================================
+
+High Engagement:
+- Strong brand visibility
+- Frequent campaigns
+- Hiring growth
+- Consumer presence
+
+Medium Engagement:
+- Normal digital presence
+- Some growth activity
+
+Low Engagement:
+- Minimal public activity
+
+==================================================
+ICP FITMENT CONDITIONS
+==================================================
+
+Company is ICP Fit ONLY if ALL below are TRUE:
+
+1. Industry is NOT "Media"
+2. Industry is NOT "Advertising"
+3. EmployeesRange is NOT "1-10"
+4. Revenue > 1M USD
+
+==================================================
+ICP DECISION LOGIC
+==================================================
+
+If all pass:
+
+ICPFitmentTest = "ICP Fitment"
+ICPFitStatus = "Good Fit"
+
+Else:
+
+ICPFitmentTest = "ICP non Fitment"
+ICPFitStatus = "Not Fit"
+
+==================================================
+CONSISTENCY VALIDATION (MANDATORY)
+==================================================
+
+Before final output verify:
+
+1. Employees range realistic for known brand
+2. Revenue matches employees
+3. Revenue not generic repeated number
+4. Public company not marked tiny
+5. Startup not marked billion revenue unless justified
+6. ICP logic correct
+7. JSON valid
+8. All values use allowed options
+
+If unrealistic -> regenerate internally once.
+
+==================================================
+SPECIAL CASES
+==================================================
+
+- Fintech / Payments / Wallet / Banking tech:
+Usually Financial Services
+
+- Ad agency / media network:
+Usually Not Fit by ICP rule
+
+- Large known manufacturer:
+Usually 500+ employees
+
+- Unknown company:
+Use conservative estimates
+
+==================================================
+COMPANY INPUT
+==================================================
 
 Company: {company}
 
