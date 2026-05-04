@@ -1,21 +1,34 @@
 ICP_PROMPT = """
 ICP PROMPT GUIDELINES
 
-OUTPUT RULES:
-- Return ONLY valid JSON
-- Use double quotes for all keys and values
-- No explanation, notes, markdown, or extra text
-- If uncertain, estimate using realistic business signals
-- Never leave mandatory fields blank except allowed N/A fields
+MISSION:
+Generate highly accurate ICP enrichment JSON.
+Highest priority is:
+1. Correct ICP Fitment logic
+2. Realistic revenue
+3. Realistic employee size
+4. Consistent company classification
 
 ==================================================
-FIELD DEFINITIONS
+OUTPUT RULES
+==================================================
+
+- Return ONLY valid JSON
+- Use double quotes for all keys and values
+- No markdown
+- No explanation
+- No comments
+- No extra text
+- Never leave mandatory fields blank
+- If uncertain, infer carefully from strong business signals
+
+==================================================
+FIELDS
 ==================================================
 
 ICPIndustry:
-Primary business industry.
+Choose ONE:
 
-Allowed examples:
 Technology
 Financial Services
 Banking
@@ -34,16 +47,17 @@ Advertising
 Energy
 Telecommunications
 
-Rules:
-- Marketing / agency / branding / ad companies = Advertising
-- TV / news / publishing / streaming = Media
-- Fintech / payments / lending / wallets = Financial Services
-- SaaS / AI / IT / software = Technology
+Mapping:
+- SaaS / AI / Software / IT = Technology
+- Payments / Wallet / Fintech / Lending = Financial Services
+- Banks = Banking
+- Marketing / Agency = Advertising
+- TV / Publishing / News / Streaming = Media
 
 --------------------------------------------------
 
 ICPEmployeesRange:
-Allowed values ONLY:
+Choose ONE:
 
 "1-10"
 "11-50"
@@ -51,36 +65,30 @@ Allowed values ONLY:
 "201-500"
 "500+"
 
-Must never be empty.
-
 --------------------------------------------------
 
 ICPRevenueUSD:
-Estimated annual revenue in USD.
+Annual revenue estimate in USD.
 
-Allowed format ONLY:
-"K" = Thousand
-"M" = Million
-"B" = Billion
-
-Examples:
+Allowed format:
 "850K"
-"4.2M"
-"19M"
-"240M"
-"1.4B"
+"1.4M"
+"9.7M"
+"42M"
+"310M"
+"2.2B"
 
-Rules:
+Strict:
 - No raw numbers
-- No currency symbols
-- Must be realistic
-- Must align with employee size + industry
-- Use varied values, not repeated defaults
+- No $
+- No commas
+- Must be believable
+- Must vary naturally
+- Never use repeated defaults
 
 --------------------------------------------------
 
 ICPFundingType:
-Allowed values ONLY:
 
 "Bootstrapped"
 "Private"
@@ -91,7 +99,6 @@ Allowed values ONLY:
 --------------------------------------------------
 
 ICPFundingStage:
-Allowed values ONLY:
 
 "Seed"
 "Series A"
@@ -103,187 +110,156 @@ Allowed values ONLY:
 --------------------------------------------------
 
 ICPFUndingAmount:
-If known estimated funding amount:
-Examples:
-"5M"
-"22M"
-"300K"
-
-Else return ""
+Known / strong estimate else ""
 
 --------------------------------------------------
 
 ICPParentCompany:
-Parent company name if known.
-Else return "N/A"
+Known / strong estimate else ""
 
 --------------------------------------------------
 
 ICPLinkedInURL:
-Valid LinkedIn company page if confidently known.
-Else return "N/A"
+Known valid URL else "N/A"
 
 --------------------------------------------------
 
 ICPMarketingSignal:
-Allowed values ONLY:
 
 "High Engagement"
 "Medium Engagement"
 "Low Engagement"
 
-Use signals like:
-- Ad activity
-- Social presence
-- Hiring growth
-- Brand campaigns
-- Website/product activity
-
 --------------------------------------------------
 
 ICPFitStatus:
+
 "Good Fit"
 "Not Fit"
 
 ICPFitmentTest:
+
 "ICP Fitment"
 "ICP non Fitment"
 
 ==================================================
-EMPLOYEE ESTIMATION RULES (VERY IMPORTANT)
+EMPLOYEE ESTIMATION
 ==================================================
 
-Estimate using REAL company maturity.
+Use actual market presence.
 
-1) Tiny local company / new unknown business:
--> "1-10"
+1-10:
+Tiny unknown business / freelancer / micro company
 
-2) Small startup / LLP / niche regional company:
--> "11-50"
+11-50:
+Small startup / niche local business
 
-3) Funded startup / growing company / active SaaS / fintech:
--> "51-200"
+51-200:
+Growing startup / funded company / active scale-up
 
-4) Established mid-size company / multiple branches:
--> "201-500"
+201-500:
+Established regional business / strong operations
 
-5) Public company / national brand / old enterprise /
-large manufacturer / enterprise group:
--> "500+"
+500+:
+Large enterprise / public company / global brand
 
-CRITICAL RULES:
-
-- Never default to "51-200"
-- Famous brands should rarely be below "500+"
-- Listed companies should usually be "500+"
-- Multi-country operations should usually be "201-500" or "500+"
-- Regulated fintech/payment companies should usually be at least "51-200"
+Rules:
+- Famous companies usually 500+
+- Public companies usually 500+
+- Fintech/payment companies usually 51+ minimum
 
 ==================================================
-REVENUE ESTIMATION RULES (CRITICAL)
+REVENUE ESTIMATION (CRITICAL)
 ==================================================
 
-Revenue must strongly match employee scale.
+DO NOT calculate revenue from employee band alone.
 
-BASELINE GUIDE:
+Use these factors:
 
-"1-10"
-100K to 2M
+1. Industry economics
+2. Product vs services
+3. Geography
+4. Consumer scale
+5. B2B pricing
+6. Funding traction
+7. Brand size
+8. Public filings if known
+9. Multi-country operations
+10. Company maturity
 
-"11-50"
-500K to 8M
+Examples:
 
-"51-200"
-3M to 35M
+20-person SaaS = 3M to 15M possible
+20-person agency = 700K to 4M possible
+80-person fintech = 8M to 60M possible
+150-person payments firm = 20M to 150M possible
+300-person manufacturer = 30M to 400M possible
+1000+ public enterprise = 100M to multi-billion
 
-"201-500"
-15M to 120M
-
-"500+"
-50M to Multi-Billion
-
-INDUSTRY MULTIPLIERS:
-
-- Manufacturing / Banking / Consumer Goods / Payments:
-Usually higher revenue
-
-- SaaS / AI startup:
-Medium to high depending scale
-
-- Agriculture / services / boutique firms:
-Lower to medium
-
-- Public brands:
-Can exceed baseline significantly
-
-CRITICAL RULES:
-
-- Do NOT reuse values like 2.5M / 3.2M / 5M repeatedly
-- Use realistic variation:
-6.8M
-11M
+Rules:
+- Payments / fintech revenue should not be tiny if scaled
+- Public listed brands can be very large
+- Unknown micro firms should stay modest
+- Use diverse values:
+1.3M
+2.8M
+6.4M
+13M
 27M
-73M
-410M
-1.2B
-
-- If Employees = "500+" rarely below 50M
-- If Employees = "1-10" rarely above 5M
+74M
+220M
+1.7B
 
 ==================================================
 FUNDING RULES
 ==================================================
 
-If listed/public company:
+Public listed:
 FundingType = "Public"
 FundingStage = "IPO"
 
-If startup with investors:
+VC startup:
 FundingType = "Venture Capital"
 
-If owned by parent group:
+Owned by parent:
 FundingType = "Subsidiary"
 
-If old private company:
+Established private:
 FundingType = "Private"
 FundingStage = "Mature"
 
-If small self-owned:
+Tiny founder-run:
 FundingType = "Bootstrapped"
 
 ==================================================
-MARKETING SIGNAL RULES
+ICP FITMENT LOGIC (ABSOLUTE PRIORITY)
 ==================================================
 
-High Engagement:
-- Strong brand visibility
-- Frequent campaigns
-- Hiring growth
-- Consumer presence
+Evaluate EXACTLY these 3 checks:
 
-Medium Engagement:
-- Normal digital presence
-- Some growth activity
+CHECK 1:
+Industry is NOT "Media"
+AND Industry is NOT "Advertising"
 
-Low Engagement:
-- Minimal public activity
+CHECK 2:
+EmployeesRange is NOT "1-10"
 
-==================================================
-ICP FITMENT CONDITIONS
-==================================================
+CHECK 3:
+Revenue strictly greater than 1M USD
 
-Company is ICP Fit ONLY if ALL below are TRUE:
+Examples:
+"900K" = FAIL
+"1M" = FAIL
+"1.1M" = PASS
+"5M" = PASS
+">1M" = PASS
+--------------------------------------------------
 
-1. Industry is NOT "Media"
-2. Industry is NOT "Advertising"
-3. EmployeesRange is NOT "1-10"
-4. Revenue > 1M USD
+If CHECK1 = PASS
+AND CHECK2 = PASS
+AND CHECK3 = PASS
 
-==================================================
-ICP DECISION LOGIC
-==================================================
-
-If all pass:
+Then:
 
 ICPFitmentTest = "ICP Fitment"
 ICPFitStatus = "Good Fit"
@@ -294,37 +270,46 @@ ICPFitmentTest = "ICP non Fitment"
 ICPFitStatus = "Not Fit"
 
 ==================================================
-CONSISTENCY VALIDATION (MANDATORY)
+MANDATORY SELF-CHECK BEFORE OUTPUT
 ==================================================
 
-Before final output verify:
+Recalculate fitment after all fields generated.
 
-1. Employees range realistic for known brand
-2. Revenue matches employees
-3. Revenue not generic repeated number
-4. Public company not marked tiny
-5. Startup not marked billion revenue unless justified
-6. ICP logic correct
-7. JSON valid
-8. All values use allowed options
+Examples:
 
-If unrealistic -> regenerate internally once.
+Technology + 11-50 + 2.4M
+= MUST BE FIT
+
+Financial Services + 51-200 + 18M
+= MUST BE FIT
+
+Manufacturing + 201-500 + 73M
+= MUST BE FIT
+
+Media + 500+ + 800M
+= NOT FIT
+
+Advertising + 51-200 + 10M
+= NOT FIT
+
+Agriculture + 1-10 + 4M
+= NOT FIT
+
+If your generated result violates above logic, FIX it before output.
+this is the most critical step. Always ensure final output is logically consistent.
+this examples may be counterintuitive but follow the rules strictly.
 
 ==================================================
-SPECIAL CASES
+FINAL VALIDATION
 ==================================================
 
-- Fintech / Payments / Wallet / Banking tech:
-Usually Financial Services
-
-- Ad agency / media network:
-Usually Not Fit by ICP rule
-
-- Large known manufacturer:
-Usually 500+ employees
-
-- Unknown company:
-Use conservative estimates
+1. JSON valid
+2. Revenue format valid
+3. Revenue realistic
+4. Revenue not repetitive
+5. Employees realistic
+6. Fitment logic rechecked LAST
+7. No contradictory output
 
 ==================================================
 COMPANY INPUT
