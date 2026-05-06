@@ -24,7 +24,33 @@ ICPMarketingSignal
 ICPFitStatus
 ICPFitmentTest
 
-REALISTIC INFERENCE RULES (CRITICAL):
+========================
+CRITICAL NORMALIZATION (NEW)
+========================
+
+STEP A — CANONICAL ENTITY RESOLUTION (DO THIS FIRST):
+- Determine the "CanonicalEntity" behind the input company string.
+- Treat the following as the SAME CanonicalEntity:
+  * abbreviations ↔ expanded forms
+  * brand ↔ product line ↔ business unit name
+  * punctuation/case variants
+  * common nicknames and regional naming variants
+- If the input clearly refers to a SUBSIDIARY / DIVISION / PRODUCT of a larger parent:
+  * Keep revenue/employees at the SUBSIDIARY/DIVISION level ONLY if it is a separately operated/reporting business.
+  * Otherwise, treat it as the parent’s OPERATING SEGMENT and keep scale consistent with the parent’s overall scale ONLY when the segment is widely known to be massive and inseparable in public perception.
+- NEVER let an alias produce a materially different scale for the same CanonicalEntity.
+
+STEP B — PARENT vs ENTITY RULE (NEW):
+- ICPParentCompany must reflect ownership.
+- ICPRevenueUSD and ICPEmployeesRange must reflect the CanonicalEntity being described (not always the parent).
+- If you cannot separate subsidiary/segment financials reliably:
+  * Set ICPParentCompany correctly
+  * Set ICPRevenueUSD and ICPEmployeesRange to the parent-level scale ONLY if the input is commonly used to mean the overall organization.
+  * Otherwise choose a conservative segment-level estimate AND KEEP IT CONSISTENT ACROSS ALIASES.
+
+========================
+REALISTIC INFERENCE RULES (CRITICAL)
+========================
 
 EMPLOYEES ↔ REVENUE SANITY:
 - Revenue MUST scale logically with employee size
@@ -70,8 +96,12 @@ Else:
 ICPFitmentTest = "ICP non Fitment"
 ICPFitStatus = "Not Fit"
 
-MANDATORY SELF-CHECK (FINAL STEP):
+========================
+MANDATORY SELF-CHECK (FINAL STEP) (UPDATED)
+========================
 - Validate revenue against employee size and industry
+- Verify that the output would remain CONSISTENT if the input were a common alias/expanded form of the same CanonicalEntity
+- Ensure Parent vs Entity rule is satisfied (ownership vs scale)
 - Recalculate ICP fitment LAST
 - If any rule breaks, FIX BEFORE OUTPUT
 
