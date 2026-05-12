@@ -105,6 +105,15 @@ MANDATORY SELF-CHECK (FINAL STEP) (UPDATED)
 - Recalculate ICP fitment LAST
 - If any rule breaks, FIX BEFORE OUTPUT
 
+
+CONSISTENCY OVERRIDE RULE:
+
+If ICPRevenueUSD > 1M
+AND ICPEmployeesRange ≥ 10
+AND ICPIndustry is not explicitly Media or Advertising by business model,
+THEN ICPFitmentTest CANNOT be "ICP non Fitment".
+
+
 FINAL VALIDATION:
 - JSON valid
 - Revenue varies per company

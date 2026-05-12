@@ -11,5 +11,5 @@ app.include_router(icp_router)
 app.include_router(translator_router)
 
 @app.get("/")
-def root():
+def health_check():
     return {"status": "running"}
