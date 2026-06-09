@@ -11,6 +11,15 @@ OUTPUT RULES:
 - Never leave mandatory fields blank
 - Revenue and funding must be USD strings using K / M / B only
 
+EMPTY OR INVALID COMPANY (CRITICAL)
+
+If company is:
+
+- empty
+- "none", "na", "n/a", "null"
+- only symbols or test company names ("test", "abc", "xyz corp")
+
+
 MANDATORY OUTPUT FIELDS (ONLY):
 ICPIndustry
 ICPEmployeesRange
