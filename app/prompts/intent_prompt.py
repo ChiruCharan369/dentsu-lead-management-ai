@@ -99,13 +99,20 @@ Return "non qualified" for EVERYTHING ELSE, including:
 * Timestamps
 * Random strings
 
-NOT buying intent:
-- Please send your company profile.
-- Please send your case studies.
-- We are evaluating agencies.
-- We are collecting information.
-- We are conducting internal research.
-- We are comparing vendors.
+IMPORTANT QUALIFIED SIGNALS:
+
+Treat the following as QUALIFIED (early-stage buying intent):
+
+- Evaluating agencies
+- Exploring potential partners
+- Comparing vendors
+- Requesting approach, capabilities, case studies, or pricing
+- Asking for introductory calls or discussions
+- Assessing fit for future collaboration
+
+These indicate real business intent and MUST be classified as:
+
+qualified
 
 MANDATORY DEFAULT RULE:
 
