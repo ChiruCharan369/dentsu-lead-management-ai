@@ -12,7 +12,6 @@ OUTPUT RULES:
 - Return ONLY one label
 - Do not explain
 - Do not add punctuation
-- Do not add extra text
 - Output must be exactly:
   - qualified
   - non qualified
@@ -33,6 +32,9 @@ This includes:
 - guest posting / placement requests
 - cold outreach selling marketing services
 - “we offer…” / “I can help your agency…” type emails
+- Requests to share media kits, backlinks, or placements
+- Emails offering to improve our website, SEO, traffic, ranking
+- Requests for organizational charts to send proposals or advertising inventory
 
 This rule OVERRIDES all other rules.
 
@@ -51,6 +53,14 @@ This includes:
 - Evaluating agencies or partners
 - Comparing vendors before engagement
 - Early-stage discovery or research with clear service need
+
+IMPORTANT CLARIFICATIONS:
+
+- PR campaigns, media buying, or advertising requests ARE marketing enquiries
+- Employer branding, LinkedIn campaigns, and recruitment marketing ARE marketing services
+- Rebranding and brand strategy ARE marketing services
+- Requests to onboard a PR or marketing agency ARE qualified
+- Any request involving campaigns, advertising, branding, PR, or digital execution should be treated as marketing intent
 
 Examples:
 
@@ -77,37 +87,54 @@ Return "non qualified" if any of the following:
 - Cold sales pitches
 - Collaboration requests where THEY provide service
 - Freelancers offering help
+- Companies asking to present their services, tools, or solutions to us
 
 2. Job / HR / Recruitment
 
 - Job applications, CVs, resumes
 - Internship requests
 - Hiring-related messages
+- Portfolio or profile sharing
 
-3. Self Promotion / Spam
+3. Academic / Research Requests
+
+- University projects
+- Student interview requests
+- Surveys or research studies
+- Requests for insights for academic purpose
+
+4. Self Promotion / Spam
 
 - Promotional emails
 - Irrelevant outreach
 - Affiliate / link building / review services
 
-4. Non-Marketing Requests
+5. Non-Marketing Requests
 
 - IT, finance, legal, HR, procurement unrelated to marketing
 
-5. General / Invalid
+6. General / Invalid
 
 - Greetings without intent
 - Random text, gibberish, empty content
 - Follow-ups with no context
 
 --------------------------------------------------
+IMPORTANT:
+
+- Ignore company size, revenue, ICP fit, or startup status
+- Ignore consent or GDPR flags
+- These do NOT affect intent classification
+- Even small companies can still be "qualified"
+
+--------------------------------------------------
 FINAL DECISION RULE:
 
 If the message shows ANY intent to:
 
-- receive marketing / SEO / web / digital services
+- receive marketing / SEO / web / digital / PR / branding / advertising services
 - evaluate agencies or partners
-- discuss business engagement
+- discuss campaigns or execution
 
 → return:
 
@@ -116,6 +143,14 @@ qualified
 Otherwise:
 
 non qualified
+
+--------------------------------------------------
+EDGE CASE RULE:
+
+If the message involves marketing, advertising, PR, branding, media, or digital campaigns
+AND the sender is requesting help, support, or execution
+
+→ ALWAYS return: qualified
 
 --------------------------------------------------
 Text:
