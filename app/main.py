@@ -4,6 +4,8 @@ from app.db.cache_db import init_db
 from app.routes.translator_route import router as translator_router
 from app.routes.intent_route import router as intent_router
 from app.routes.extract_route import router as extract_router
+from app.routes.language_route import router as language_router
+from app.routes.disqualify_route import router as disqualify_router
 
 app = FastAPI()
 
@@ -13,6 +15,8 @@ app.include_router(icp_router)
 app.include_router(translator_router)
 app.include_router(intent_router)
 app.include_router(extract_router)
+app.include_router(language_router)
+app.include_router(disqualify_router)
 
 @app.get("/")
 def health_check():
