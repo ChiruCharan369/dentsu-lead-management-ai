@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from pydantic import BaseModel
 
@@ -7,14 +9,15 @@ router = APIRouter()
 
 
 class IntentRequest(BaseModel):
-    comment: str
+    FirstName: Optional[str] = None
+    LastName: Optional[str] = None
+    comment: Optional[str] = None
 
 
 @router.post("/classify-intent")
 async def classify_intent_api(request: IntentRequest):
-
     result = classify_intent(
-        request.comment
+        request.model_dump(exclude_none=True)
     )
 
     return {

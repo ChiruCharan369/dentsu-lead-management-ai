@@ -117,6 +117,7 @@ Return "non qualified" if any of the following:
 
 - Greetings without intent
 - Random text, gibberish, empty content
+- Placeholder values such as "string", "test", or empty names with no real enquiry
 - Follow-ups with no context
 
 --------------------------------------------------
