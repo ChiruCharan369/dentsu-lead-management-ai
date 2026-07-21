@@ -4,10 +4,6 @@ from app.prompts.icp_prompt import ICP_PROMPT
 from app.models.icp_model import ICPResponse
 from app.llm.llm_client import llm
 from app.db.cache_db import get_cached, save_cache
-from app.services.company_resolver import normalize_company
-from app.prompts.icp_prompt import ICP_PROMPT
-from app.models.icp_model import ICPResponse
-from app.llm.llm_client import llm
 
 import json
 import re
@@ -46,30 +42,43 @@ def safe_load_json(text: str):
         return {}
 
 
+def _empty_icp_response() -> ICPResponse:
+    return ICPResponse(
+        ICPIndustry="",
+        ICPEmployeesRange="",
+        ICPRevenueUSD="",
+        ICPFundingType="",
+        ICPFundingStage="",
+        ICPFUndingAmount="",
+        ICPParentCompany="",
+        ICPLinkedInURL="",
+        ICPMarketingSignal="",
+        ICPFitStatus="Not Fit",
+        ICPFitmentTest="ICP non Fitment",
+    )
+
+
+def _sanitize_icp_response(data: dict, resolved_company: str) -> dict:
+    if not resolved_company:
+        return {}
+
+    sanitized = dict(data or {})
+    parent_company = (sanitized.get("ICPParentCompany") or "").strip()
+    if not parent_company:
+        return sanitized
+
+    if normalize_company(parent_company, "") == "":
+        sanitized["ICPParentCompany"] = ""
+
+    return sanitized
+
+
 def get_icp_data(company: str, email: str) -> ICPResponse:
 
-    # resolve correct company
     resolved_company = normalize_company(company, email)
 
-    prompt = ICP_PROMPT.format(company=resolved_company)
-
-    response = llm.invoke(prompt)
-
-    text = clean_json(response.content)
-
-    data = safe_load_json(text)
-
-    data = {k: (v if v else "") for k, v in data.items()}
-
-    # add company + email to output
-    data["company"] = resolved_company
-    data["email"] = email
-
-    return ICPResponse(**data)
-
-def get_icp_data(company: str, email: str) -> ICPResponse:
-
-    resolved_company = normalize_company(company, email)
+    if not resolved_company:
+        return _empty_icp_response()
 
     # CHECK CACHE
     cached = get_cached(resolved_company)
@@ -77,6 +86,7 @@ def get_icp_data(company: str, email: str) -> ICPResponse:
     if cached:
 
         data = json.loads(cached)
+        data = _sanitize_icp_response(data, resolved_company)
 
         data["company"] = resolved_company
         data["email"] = email
@@ -98,6 +108,7 @@ def get_icp_data(company: str, email: str) -> ICPResponse:
     text = clean_json(response.content)
 
     data = safe_load_json(text)
+    data = _sanitize_icp_response(data, resolved_company)
 
     data = {k: (v if v else "") for k, v in data.items()}
 
