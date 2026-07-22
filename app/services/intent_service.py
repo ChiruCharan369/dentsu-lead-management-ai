@@ -121,10 +121,65 @@ def _has_no_comment_with_high_revenue(payload: Any, text: str) -> bool:
     return False
 
 
+def _is_gibberish_name(name: Any) -> bool:
+    if not isinstance(name, str) or not name.strip():
+        return False
+
+    value = name.strip()
+    lower = value.lower()
+
+    placeholder_name_pattern = re.compile(r"^(#?sym[:_\-]?)?(first(name)?|last(name)?|name|firstname|lastname)$", re.I)
+    if placeholder_name_pattern.match(lower):
+        return True
+
+    if re.search(r"\d", value):
+        return True
+
+    letters_only = re.sub(r"[^a-z]+", "", lower)
+    if not letters_only:
+        return True
+
+    if len(letters_only) <= 2:
+        return False
+
+    vowel_count = sum(1 for c in letters_only if c in "aeiou")
+    if vowel_count == 0:
+        return True
+
+    if len(letters_only) >= 5 and vowel_count / len(letters_only) < 0.25:
+        return True
+
+    if len(value) >= 10 and value.isalnum() and any(c.isupper() for c in value) and any(c.islower() for c in value):
+        return True
+
+    if re.search(r"[^a-zA-Z\s]", value):
+        non_alpha_chars = re.findall(r"[^a-zA-Z\s]", value)
+        if len(non_alpha_chars) / len(value) > 0.25:
+            return True
+
+    if re.search(r"[bcdfghjklmnpqrstvwxyz]{4,}", letters_only):
+        return True
+
+    return False
+
+
+def _names_are_gibberish(payload: Any) -> bool:
+    if not isinstance(payload, Mapping):
+        return False
+
+    first_name = payload.get("FirstName") or payload.get("firstName") or payload.get("first_name") or ""
+    last_name = payload.get("LastName") or payload.get("lastName") or payload.get("last_name") or ""
+
+    return _is_gibberish_name(first_name) or _is_gibberish_name(last_name)
+
+
 def classify_intent(payload: Any) -> str:
     text = _extract_text(payload)
 
     if _is_service_provider_outreach(text):
+        return "non qualified"
+
+    if _names_are_gibberish(payload):
         return "non qualified"
 
     if _has_no_comment_with_high_revenue(payload, text):
@@ -133,8 +188,17 @@ def classify_intent(payload: Any) -> str:
     if _is_placeholder_or_gibberish(payload):
         return "non qualified"
 
+    # Provide optional first/last name fields when formatting the prompt
+    first_name = ""
+    last_name = ""
+    if isinstance(payload, Mapping):
+        first_name = payload.get("FirstName") or payload.get("firstName") or payload.get("first_name") or ""
+        last_name = payload.get("LastName") or payload.get("lastName") or payload.get("last_name") or ""
+
     prompt = INTENT_PROMPT.format(
-        comment=text
+        FirstName=first_name,
+        LastName=last_name,
+        comment=text,
     )
 
     response = llm.invoke(prompt)

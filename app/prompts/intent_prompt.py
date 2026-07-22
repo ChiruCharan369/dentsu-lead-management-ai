@@ -155,7 +155,9 @@ AND the sender is requesting help, support, or execution
 
 --------------------------------------------------
 Text:
-{comment}
+FirstName: {FirstName}
+LastName: {LastName}
+Comment:{comment}
 
 Output:
 """

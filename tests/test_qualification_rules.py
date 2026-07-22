@@ -49,3 +49,25 @@ def test_gibberish_message_is_rejected_even_if_llm_says_qualified():
         })
 
     assert result == "non qualified"
+
+
+def test_gibberish_first_or_last_name_is_rejected_before_llm():
+    with patch("app.services.intent_service.llm.invoke", return_value=SimpleNamespace(content="qualified")):
+        result = classify_intent({
+            "FirstName": "BkJJOjbibkexDzHtpHunw",
+            "LastName": "PyuSuLoVdOCEflHm",
+            "comment": "2026-07-20 19:54:08 (BST) eXVxJIrnoyDeMIhuPVy2026-07-20 19:54:38 (BST) dqXbGKNGxwirKcXSeW *Marketing"
+        })
+
+    assert result == "non qualified"
+
+
+def test_placeholder_name_fields_are_rejected_before_llm():
+    with patch("app.services.intent_service.llm.invoke", return_value=SimpleNamespace(content="qualified")):
+        result = classify_intent({
+            "FirstName": "#sym:FirstName",
+            "LastName": "#sym:LastName",
+            "comment": "This is a placeholder submission"
+        })
+
+    assert result == "non qualified"
