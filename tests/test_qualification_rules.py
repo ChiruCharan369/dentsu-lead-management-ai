@@ -30,7 +30,8 @@ def test_empty_or_no_comment_with_high_revenue_is_qualified():
             "ICPRevenueUSD": "5M",
         })
 
-    assert result == "qualified"
+    assert result["result"] == "qualified"
+    assert "high revenue" in result["reason"]
 
 
 def test_service_provider_message_is_rejected_even_if_llm_says_qualified():
@@ -39,7 +40,8 @@ def test_service_provider_message_is_rejected_even_if_llm_says_qualified():
             "comment": "We offer SEO and backlink services to help your agency grow."
         })
 
-    assert result == "non qualified"
+    assert result["result"] == "non qualified"
+    assert "selling services" in result["reason"]
 
 
 def test_gibberish_message_is_rejected_even_if_llm_says_qualified():
@@ -48,7 +50,8 @@ def test_gibberish_message_is_rejected_even_if_llm_says_qualified():
             "comment": "asdf qwer zzz"
         })
 
-    assert result == "non qualified"
+    assert result["result"] == "non qualified"
+    assert "gibberish" in result["reason"]
 
 
 def test_gibberish_first_or_last_name_is_rejected_before_llm():
@@ -59,7 +62,8 @@ def test_gibberish_first_or_last_name_is_rejected_before_llm():
             "comment": "2026-07-20 19:54:08 (BST) eXVxJIrnoyDeMIhuPVy2026-07-20 19:54:38 (BST) dqXbGKNGxwirKcXSeW *Marketing"
         })
 
-    assert result == "non qualified"
+    assert result["result"] == "non qualified"
+    assert "sender name" in result["reason"]
 
 
 def test_placeholder_name_fields_are_rejected_before_llm():
@@ -70,4 +74,5 @@ def test_placeholder_name_fields_are_rejected_before_llm():
             "comment": "This is a placeholder submission"
         })
 
-    assert result == "non qualified"
+    assert result["result"] == "non qualified"
+    assert "placeholder" in result["reason"]

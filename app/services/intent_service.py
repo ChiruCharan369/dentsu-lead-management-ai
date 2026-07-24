@@ -1,4 +1,4 @@
-import re
+﻿import re
 from typing import Any, Mapping
 
 from app.llm.llm_client import llm
@@ -173,20 +173,33 @@ def _names_are_gibberish(payload: Any) -> bool:
     return _is_gibberish_name(first_name) or _is_gibberish_name(last_name)
 
 
-def classify_intent(payload: Any) -> str:
+
+def classify_intent(payload: Any) -> dict[str, str]:
     text = _extract_text(payload)
 
     if _is_service_provider_outreach(text):
-        return "non qualified"
+        return {
+            "result": "non qualified",
+            "reason": "sender is selling services to us"
+        }
 
     if _names_are_gibberish(payload):
-        return "non qualified"
+        return {
+            "result": "non qualified",
+            "reason": "invalid or placeholder sender name"
+        }
 
     if _has_no_comment_with_high_revenue(payload, text):
-        return "qualified"
+        return {
+            "result": "qualified",
+            "reason": "high revenue lead without a message"
+        }
 
     if _is_placeholder_or_gibberish(payload):
-        return "non qualified"
+        return {
+            "result": "non qualified",
+            "reason": "placeholder or gibberish content"
+        }
 
     # Provide optional first/last name fields when formatting the prompt
     first_name = ""
@@ -204,8 +217,13 @@ def classify_intent(payload: Any) -> str:
     response = llm.invoke(prompt)
 
     result = response.content.strip().lower()
-
     if "qualified" == result:
-        return "qualified"
+        return {
+            "result": "qualified",
+            "reason": "client inquiry for marketing services"
+        }
 
-    return "non qualified"
+    return {
+        "result": "non qualified",
+        "reason": "no purchase intent or outreach to our agency"
+    }
