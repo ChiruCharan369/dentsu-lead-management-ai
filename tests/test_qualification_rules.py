@@ -1,7 +1,9 @@
+import asyncio
 from types import SimpleNamespace
 from unittest.mock import patch
 
 from app.services.company_resolver import normalize_company
+from app.services.extract_service import extract_fields
 from app.services.icp_service import get_icp_data
 from app.services.intent_service import classify_intent
 
@@ -76,3 +78,23 @@ def test_placeholder_name_fields_are_rejected_before_llm():
 
     assert result["result"] == "non qualified"
     assert "placeholder" in result["reason"]
+
+
+def test_extract_fields_fills_missing_fields_with_empty_strings():
+    mock_response = SimpleNamespace(content='''{
+        "extracted_data": {
+            "Email": {"value": "john@example.com", "type": "string"}
+        }
+    }''')
+
+    with patch("app.services.extract_service.llm.invoke", return_value=mock_response):
+        result = asyncio.run(extract_fields("hello world"))
+
+    assert result["extracted_data"]["Email"]["value"] == "john@example.com"
+    assert result["extracted_data"]["FirstName"]["value"] == ""
+    assert result["extracted_data"]["LastName"]["value"] == ""
+    assert result["extracted_data"]["Company"]["value"] == ""
+    assert result["extracted_data"]["Campaign"]["value"] == ""
+    assert result["extracted_data"]["JobTitle"]["value"] == ""
+    assert result["extracted_data"]["Country"]["value"] == ""
+    assert result["extracted_data"]["Comments"]["value"] == ""
