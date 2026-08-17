@@ -1,4 +1,5 @@
-﻿import re
+﻿import json
+import re
 from typing import Any, Mapping
 
 from app.llm.llm_client import llm
@@ -174,14 +175,34 @@ def _names_are_gibberish(payload: Any) -> bool:
 
 
 
+def _extract_classification_from_json(raw: str) -> tuple[str, str]:
+    if not raw:
+        return "", ""
+
+    cleaned = raw.strip()
+    if cleaned.startswith("```"):
+        cleaned = re.sub(r"^```(?:json)?\s*", "", cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+
+    try:
+        parsed = json.loads(cleaned)
+    except json.JSONDecodeError:
+        return "", ""
+
+    if not isinstance(parsed, dict):
+        return "", ""
+
+    status = str(parsed.get("Qualification Status") or parsed.get("qualification status") or "").strip().lower()
+    reason = str(parsed.get("Reason") or parsed.get("reason") or "").strip()
+
+    if status in {"qualified", "non qualified"} and reason:
+        return status, reason
+
+    return "", ""
+
+
 def classify_intent(payload: Any) -> dict[str, str]:
     text = _extract_text(payload)
-
-    if _is_service_provider_outreach(text):
-        return {
-            "result": "non qualified",
-            "reason": "sender is selling services to us"
-        }
 
     if _names_are_gibberish(payload):
         return {
@@ -215,9 +236,28 @@ def classify_intent(payload: Any) -> dict[str, str]:
     )
 
     response = llm.invoke(prompt)
+    raw_content = str(response.content or "").strip()
+    parsed_status, parsed_reason = _extract_classification_from_json(raw_content)
 
-    result = response.content.strip().lower()
-    if "qualified" == result:
+    if _is_service_provider_outreach(text):
+        if parsed_status == "non qualified":
+            return {
+                "result": "non qualified",
+                "reason": parsed_reason or "sender is selling services to us"
+            }
+        return {
+            "result": "non qualified",
+            "reason": parsed_reason or "sender is selling services to us"
+        }
+
+    if parsed_status in {"qualified", "non qualified"}:
+        return {
+            "result": parsed_status,
+            "reason": parsed_reason,
+        }
+
+    result = raw_content.lower()
+    if result == "qualified":
         return {
             "result": "qualified",
             "reason": "client inquiry for marketing services"

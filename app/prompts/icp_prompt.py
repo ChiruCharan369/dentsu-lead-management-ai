@@ -32,6 +32,8 @@ ICPLinkedInURL
 ICPMarketingSignal
 ICPFitStatus
 ICPFitmentTest
+ConfidenceScore
+ScoreComment
 
 ========================
 CRITICAL NORMALIZATION (NEW)
@@ -92,18 +94,34 @@ ICPIndustry is NOT "Media"
 AND ICPIndustry is NOT "Advertising"
 
 CHECK 2:
-ICPEmployeesRange is NOT less than 10
-
-CHECK 3:
 ICPRevenueUSD is strictly greater than 1M USD annually
 
-FITMENT RESULT:
-If ALL checks PASS:
-ICPFitmentTest = "ICP Fitment"
-ICPFitStatus = "Good Fit"
-Else:
-ICPFitmentTest = "ICP non Fitment"
-ICPFitStatus = "Not Fit"
+CHECK 3:
+ICPEmployeesRange is NOT less than 10
+
+NOTE — COMPENSATING FACTOR RULE:
+- Revenue is the primary pass/fail criteria after industry.
+- However, employee count is a compensating factor: if revenue is slightly below the threshold (within 5% below $1M) but employee count meets or exceeds the employee threshold (≥ 10), classify as "Near Fit" instead of automatic non-fit.
+
+NEAR FIT (AMBER) CRITERIA:
+1. Revenue is within 5% below the benchmark (i.e., between $950,000 and $1,000,000),
+2. Industry criteria are satisfied (CHECK 1),
+3. Employee count criteria are satisfied (CHECK 3).
+
+FITMENT RESULT (FINAL):
+- If CHECK 1 AND CHECK 2 AND CHECK 3 PASS:
+  ICPFitmentTest = "ICP Fitment"
+  ICPFitStatus = "Good Fit"
+- Else if CHECK 1 PASS and Revenue within 5% below threshold and CHECK 3 PASS:
+  ICPFitmentTest = "Near Fit"
+  ICPFitStatus = "Near Fit"
+- Else:
+  ICPFitmentTest = "ICP non Fitment"
+  ICPFitStatus = "Not Fit"
+
+SCORE GUIDANCE:
+- `ConfidenceScore`: integer 0-100 where higher means better match to revenue threshold and quality. Use 100 for clearly above threshold; use values in the 70-89 range for Near Fit; below 70 for weak revenue signals.
+- `ScoreComment`: short human-readable rationale for the revenue score (e.g., "Revenue 980K (within 2% of threshold); employees strong -> Near Fit").
 
 ========================
 MANDATORY SELF-CHECK (FINAL STEP) (UPDATED)

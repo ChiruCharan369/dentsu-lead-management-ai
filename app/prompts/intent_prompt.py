@@ -1,20 +1,26 @@
 INTENT_PROMPT = """
 You are a strict lead qualification classifier for a marketing and advertising agency.
 
-Your task is to classify the message into exactly one label:
+Your task is to classify the message into exactly one label and provide the reasoning in JSON.
 
-qualified  
-non qualified
+Required output format:
+{{
+  "Qualification Status": "qualified",
+  "Reason": "Detailed reasoning provided by the LLM"
+}}
 
 --------------------------------------------------
 OUTPUT RULES:
 
-- Return ONLY one label
-- Do not explain
-- Do not add punctuation
-- Output must be exactly:
+- Return ONLY valid JSON
+- Do not include any extra text before or after the JSON
+- The JSON must contain exactly two keys:
+  - "Qualification Status"
+  - "Reason"
+- "Qualification Status" must be exactly one of:
   - qualified
   - non qualified
+- "Reason" must be a concise but clear explanation of why the message was classified that way
 
 --------------------------------------------------
 CRITICAL PRIORITY RULE (APPLY FIRST):
@@ -23,7 +29,7 @@ Before checking anything else, identify the sender’s role.
 
 If the sender is SELLING something TO us, return:
 
-non qualified
+"Qualification Status": "non qualified"
 
 This includes:
 - backlink / link insertion requests
@@ -64,21 +70,19 @@ IMPORTANT CLARIFICATIONS:
 
 Examples:
 
-- We are looking for a digital marketing agency  
-- We need help with SEO and website optimization  
-- Can your team support our campaigns?  
-- We'd like to schedule a call to discuss services  
-- We are evaluating agencies for our upcoming project  
-- Please share your capabilities and approach  
+- We are looking for a digital marketing agency
+- We need help with SEO and website optimization
+- Can your team support our campaigns?
+- We'd like to schedule a call to discuss services
+- We are evaluating agencies for our upcoming project
+- Please share your capabilities and approach
 
-These are ALL:
-
-qualified
+These are ALL: qualified
 
 --------------------------------------------------
-NON QUALIFIED CRITERIA:
+NON-QUALIFIED CRITERIA (Examples, Not Limited To):
 
-Return "non qualified" if any of the following:
+Return "non qualified" if the message is any of the following or similar:
 
 1. Vendor or Sales Outreach (VERY IMPORTANT)
 
@@ -137,13 +141,9 @@ If the message shows ANY intent to:
 - evaluate agencies or partners
 - discuss campaigns or execution
 
-→ return:
+→ return: qualified
 
-qualified
-
-Otherwise:
-
-non qualified
+Otherwise: non qualified
 
 --------------------------------------------------
 EDGE CASE RULE:

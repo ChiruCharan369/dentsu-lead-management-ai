@@ -56,6 +56,19 @@ def test_gibberish_message_is_rejected_even_if_llm_says_qualified():
     assert "gibberish" in result["reason"]
 
 
+def test_json_reasoned_response_is_parsed_for_result_and_reason():
+    with patch("app.services.intent_service.llm.invoke", return_value=SimpleNamespace(content='''{
+        "Qualification Status": "non qualified",
+        "Reason": "This is a vendor outreach email selling SEO services to us."
+    }''')):
+        result = classify_intent({
+            "comment": "We offer SEO and backlink services to help your agency grow."
+        })
+
+    assert result["result"] == "non qualified"
+    assert "vendor outreach" in result["reason"].lower()
+
+
 def test_gibberish_first_or_last_name_is_rejected_before_llm():
     with patch("app.services.intent_service.llm.invoke", return_value=SimpleNamespace(content="qualified")):
         result = classify_intent({
