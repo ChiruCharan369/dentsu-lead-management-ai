@@ -140,7 +140,6 @@ AND ICPEmployeesRange ≥ 10
 AND ICPIndustry is not explicitly Media or Advertising by business model,
 THEN ICPFitmentTest CANNOT be "ICP non Fitment".
 
-
 FINAL VALIDATION:
 - JSON valid
 - Revenue varies per company
