@@ -113,7 +113,7 @@ FITMENT RESULT (FINAL):
   ICPFitmentTest = "ICP Fitment"
   ICPFitStatus = "Good Fit"
 - Else if CHECK 1 PASS and Revenue within 5% below threshold and CHECK 3 PASS:
-  ICPFitmentTest = "Near Fit"
+  ICPFitmentTest = "ICP Near Fitment"
   ICPFitStatus = "Near Fit"
 - Else:
   ICPFitmentTest = "ICP non Fitment"
