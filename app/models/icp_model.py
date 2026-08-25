@@ -18,3 +18,6 @@ class ICPResponse(BaseModel):
     ICPMarketingSignal: str = ""
     ICPFitStatus: str = ""
     ICPFitmentTest: str = ""
+    ConfidenceScore: int = 0
+    ScoreComment: str = ""
+    ManualCheck: str = "Manual check not needed"
