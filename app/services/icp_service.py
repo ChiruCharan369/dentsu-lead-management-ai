@@ -61,7 +61,22 @@ def _empty_icp_response() -> ICPResponse:
         ICPFitmentTest="ICP non Fitment",
         ConfidenceScore=0,
         ScoreComment="",
+        ManualCheck="Manual check needed",
     )
+
+
+def _set_manual_check_needed(data: dict) -> dict:
+    try:
+        confidence_score = int(data.get("ConfidenceScore", 0))
+    except (TypeError, ValueError):
+        confidence_score = 0
+
+    data["ManualCheck"] = (
+        "Manual check needed"
+        if confidence_score < 70
+        else "Manual check not needed"
+    )
+    return data
 
 
 def _sanitize_icp_response(data: dict, resolved_company: str) -> dict:
@@ -326,6 +341,7 @@ def get_icp_data(company: str, email: str) -> ICPResponse:
 
         data["company"] = resolved_company
         data["email"] = email
+        data = _set_manual_check_needed(data)
 
         print("CACHE HIT")
 
@@ -356,6 +372,8 @@ def get_icp_data(company: str, email: str) -> ICPResponse:
         data = _apply_deterministic_fitment(data)
     except Exception as e:
         print("Fitment computation error:", e)
+
+    data = _set_manual_check_needed(data)
 
     # SAVE CACHE
     save_cache(

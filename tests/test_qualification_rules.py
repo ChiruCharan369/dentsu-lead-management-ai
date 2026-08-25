@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 from app.services.company_resolver import normalize_company
 from app.services.extract_service import extract_fields
-from app.services.icp_service import get_icp_data
+from app.services.icp_service import _set_manual_check_needed, get_icp_data
 from app.services.intent_service import classify_intent
 
 
@@ -22,6 +22,12 @@ def test_empty_company_returns_safe_icp_fallback_without_llm():
     assert response.ICPParentCompany == ""
     assert response.ICPFitStatus == "Not Fit"
     assert response.ICPFitmentTest == "ICP non Fitment"
+    assert response.ManualCheck == "Manual check needed"
+
+
+def test_manual_check_is_needed_below_confidence_threshold():
+    assert _set_manual_check_needed({"ConfidenceScore": 69})["ManualCheck"] == "Manual check needed"
+    assert _set_manual_check_needed({"ConfidenceScore": 70})["ManualCheck"] == "Manual check not needed"
 
 
 def test_empty_or_no_comment_with_high_revenue_is_qualified():

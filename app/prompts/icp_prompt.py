@@ -34,6 +34,7 @@ ICPFitStatus
 ICPFitmentTest
 ConfidenceScore
 ScoreComment
+ManualCheck
 
 ========================
 CRITICAL NORMALIZATION (NEW)
